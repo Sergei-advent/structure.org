@@ -15,7 +15,8 @@
         "jeroennoten/laravel-adminlte": "^3.2",
         "laravel/framework": "^7.0",
         "laravel/tinker": "^2.0",
-        "laravel/ui": "^2.0"
+        "laravel/ui": "^2.0",
+        "ext-json": "*"
     },
     "require-dev": {
         "facade/ignition": "^2.0",
