@@ -7,39 +7,12 @@ use App\Models\Department;
 class StoreCompanyStructureService
 {
     /**
-     * Type input content
-     *
-     * @var string
-     */
-    private $type;
-
-    /**
-     * File or json info about structure
-     *
-     * @var mixed
-     */
-    private $content;
-
-    /**
-     * @param  String  $type
-     * @param mixed $content
-     */
-    public function setParams(String $type, $content) {
-        $this->type = $type;
-        $this->content = $content;
-    }
-
-    /**
      * Store structure in data base
+     *
+     * @param array $structure
      */
-    public function storeStructure() {
-        $structure = $this->content;
-
-        if ($this->type === 'xml') {
-            $structure = $this->convertXml();
-        }
-
-        $structure = structure_convert($structure);
+    public function storeStructure($structure) {
+        $structure = $this->convertToCorrectStructure($structure);
 
         $this->storeDepartments($structure);
     }
@@ -51,37 +24,118 @@ class StoreCompanyStructureService
      */
     private function storeDepartments(Array $structure) {
         foreach ($structure as $department) {
-            $departmentSyncField = 'id';
-            $departmentSyncValue = isset($department->id) ? $department->id : null;
+            [$departmentSyncField, $departmentSyncValue] = $this->getSyncField($department);
 
-            if (isset($department->code_name)) {
-                $departmentSyncField = 'code_name';
-                $departmentSyncValue = $department->code_name;
+            $parentSyncField = 'parent_department_' . $departmentSyncField;
+            $parentDepartmentId = Department::where($departmentSyncField, $department[$parentSyncField])->first();
+
+
+            /**
+             * TODO parent save
+             */
+            /*while(!$parentDepartmentId) {
+                $parentDepartmentId = Department::where($departmentSyncField, $department[$parentSyncField])->first();
+
+
+                $parentDepartmentId = array_search($department[$parentSyncField], array_column($structure, $departmentSyncField));
+
+                $currentDepartment = $structure[$parentDepartmentId];
+
+
             }
+
+            if (!$parentDepartmentId) {
+                $parentDepartmentId = array_search($department[$parentSyncField], array_column($structure, $departmentSyncField));
+                Department::create([
+                    'parent_department_id' => $parentDepartmentId,
+                    'name' => $department['name'],
+                    'code_name' => isset($department['code_name']) ? $department['code_name'] : null,
+                    'description' => isset($department['description']) ? $department['description'] : null,
+                    'other_information' => isset($department['other_information']) ? json_encode($department['other_information']) : null,
+                ]);
+            }*/
 
             Department::updateOrCreate(
                 [
                     $departmentSyncField => $departmentSyncValue
                 ],
                 [
-                    'parent_department_id' => $department->parent_department_id,
-                    'name' => $department->name,
-                    'code_name' => isset($department->code_name) ? $department->code_name : null,
-                    'description' => isset($department->description) ? $department->description : null,
-                    'other_information' => isset($department->other_information) ? $department->other_information : null,
+                    'parent_department_id' => $parentDepartmentId,
+                    'name' => $department['name'],
+                    'code_name' => isset($department['code_name']) ? $department['code_name'] : null,
+                    'description' => isset($department['description']) ? $department['description'] : null,
+                    'other_information' => isset($department['other_information']) ? json_encode($department['other_information']) : null,
                 ]
             );
         }
     }
 
     /**
-     * convert XML structure into array
+     * Convert format structure into correct format
      *
+     * @param $structure
      * @return array
      */
-    private function convertXml() {
-        $structure = $this->content;
+    private function convertToCorrectStructure($structure) {
+        $correctStructure = [];
 
-        return $structure;
+        if (is_numeric(array_key_first($structure))) {
+            foreach ($structure as $department) {
+                $correctStructure = array_merge($correctStructure, $this->createDepartmentForSave($department));
+            }
+        } else {
+            $correctStructure = $this->createDepartmentForSave($structure);
+        }
+
+        return $correctStructure;
+    }
+
+    private function createDepartmentForSave($department, $parentSyncField = 'id', $parentSyncValue = null) {
+        [$departmentSyncField, $departmentSyncValue] = $this->getSyncField($department);
+
+        $correctDepartment = [];
+
+        if (isset($department['children']) && count($department['children']) !== 0) {
+
+            $correctDepartment[] = $this->setParrentDepartment(
+                $department,
+                $parentSyncField,
+                $parentSyncValue
+            );
+
+            foreach ($department['children'] as $child) {
+                $correctDepartment = array_merge($this->setParrentDepartment(
+                    $this->createDepartmentForSave($child, $departmentSyncField, $departmentSyncValue),
+                    $parentSyncField,
+                    $parentSyncValue
+                ), $correctDepartment);
+            }
+        } else {
+            $correctDepartment[] = $this->setParrentDepartment($department, $parentSyncField, $parentSyncValue);
+        }
+
+        return $correctDepartment;
+    }
+
+    private function setParrentDepartment($department, $parentSyncField = 'id', $parentSyncValue = null) {
+        unset($department['children']);
+
+        if ($parentSyncValue && isset($department[$parentSyncField]) && ($parentSyncValue !== $department[$parentSyncField])) {
+            $department['parent_department_' . $parentSyncField] = $parentSyncValue;
+        }
+
+        return $department;
+    }
+
+    private function getSyncField($department) {
+        $departmentSyncField = 'id';
+        $departmentSyncValue = isset($department['id']) ? $department['id'] : null;
+
+        if (isset($department['code_name'])) {
+            $departmentSyncField = 'code_name';
+            $departmentSyncValue = $department['code_name'];
+        }
+
+        return [$departmentSyncField, $departmentSyncValue];
     }
 }

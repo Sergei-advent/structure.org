@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "eb79bb19de33de5bfcb27a7148c981fa",
+    "content-hash": "8ac30664c13aec9f58534fc98c8d6a1f",
     "packages": [
         {
             "name": "almasaeed2010/adminlte",
@@ -142,6 +142,92 @@
                 "math"
             ],
             "time": "2020-04-15T15:59:35+00:00"
+        },
+        {
+            "name": "danharper/jsonx",
+            "version": "v0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/danharper/JSONx.git",
+                "reference": "551ab64f6f4a9d19c516cc7c62ac449190c5a0e3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/danharper/JSONx/zipball/551ab64f6f4a9d19c516cc7c62ac449190c5a0e3",
+                "reference": "551ab64f6f4a9d19c516cc7c62ac449190c5a0e3",
+                "shasum": ""
+            },
+            "require-dev": {
+                "mockery/mockery": "^0.9.4",
+                "phpunit/phpunit": "^5.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "danharper\\JSONx\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dan Harper",
+                    "email": "hello@dans.email"
+                }
+            ],
+            "description": "JSONx is an IBM standard format to represent JSON as XML https://twitter.com/danharper7/status/514822464673951744",
+            "time": "2015-11-22T16:07:46+00:00"
+        },
+        {
+            "name": "danharper/laravel-jsonx",
+            "version": "v0.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/danharper/JSONx-for-Laravel.git",
+                "reference": "261a194dfe24cf6cd20d89f808d9c5e4628b9975"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/danharper/JSONx-for-Laravel/zipball/261a194dfe24cf6cd20d89f808d9c5e4628b9975",
+                "reference": "261a194dfe24cf6cd20d89f808d9c5e4628b9975",
+                "shasum": ""
+            },
+            "require": {
+                "danharper/jsonx": "^0.1.0",
+                "illuminate/http": ">=4.1.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "^0.9.4",
+                "phpunit/phpunit": "^5.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "danharper\\LaravelJSONx\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dan Harper",
+                    "email": "hello@dans.email"
+                }
+            ],
+            "description": "Add XML support to a JSON-speaking Laravel API with a single middleware via JSONx",
+            "keywords": [
+                "ibm",
+                "json",
+                "jsonx",
+                "laravel",
+                "lumen",
+                "xml"
+            ],
+            "time": "2015-11-23T10:55:31+00:00"
         },
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -3453,6 +3539,54 @@
             "time": "2019-10-24T08:53:34+00:00"
         },
         {
+            "name": "tucker-eric/laravel-xml-middleware",
+            "version": "1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Tucker-Eric/laravel-xml-middleware.git",
+                "reference": "694995c9d878667b092ce6ef35308fa17f5aa826"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Tucker-Eric/laravel-xml-middleware/zipball/694995c9d878667b092ce6ef35308fa17f5aa826",
+                "reference": "694995c9d878667b092ce6ef35308fa17f5aa826",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/http": "^5.0|^6.0|^7.0",
+                "illuminate/support": "^5.0|^6.0|^7.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~5.4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "XmlMiddleware\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Eric Tucker",
+                    "email": "tucker.ericm@gmail.com"
+                }
+            ],
+            "description": "A Laravel Middleware to accept XML requests",
+            "keywords": [
+                "laravel",
+                "middleware",
+                "request",
+                "xml",
+                "xml request",
+                "xml-middleware"
+            ],
+            "time": "2020-03-10T22:39:35+00:00"
+        },
+        {
             "name": "vlucas/phpdotenv",
             "version": "v4.1.4",
             "source": {
@@ -5564,7 +5698,9 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": "^7.2.5"
+        "php": "^7.2.5",
+        "ext-json": "*",
+        "ext-simplexml": "*"
     },
     "platform-dev": []
 }

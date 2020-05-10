@@ -29,14 +29,16 @@ class OrgStructureController extends Controller
     }
 
     /**
-     * Main endpoint store organization structure
+     * Main endpoint store organization structure json
      *
      * @param  Request  $request
      * @return JsonResponse
      */
     public function store(Request $request)
     {
-        $validator = $this->validator($request->all());
+        $structure = $request->all();
+
+        $validator = $this->validator($structure);
 
         if ($validator->fails()) {
             return response()->json(
@@ -46,12 +48,7 @@ class OrgStructureController extends Controller
         }
 
         try {
-            $this->storeCompanyStructureService->setParams(
-                $request->get('type', 'json'),
-                $request->get('structure')
-            );
-
-            $this->storeCompanyStructureService->storeStructure();
+            $this->storeCompanyStructureService->storeStructure($structure['structure']);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], JsonResponse::HTTP_BAD_REQUEST);
         }
@@ -71,8 +68,7 @@ class OrgStructureController extends Controller
 
     protected function validator(array $data) {
         return Validator::make($data, [
-            'type' => 'string|nullable',
-            'structure' => 'json|file'
+            'structure' => 'required|array'
         ]);
     }
 }

@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/authTest', 'API\TestController@authTest');
+Route::post('/auth_test', 'API\TestController@authTest');
 
 Route::middleware(['main.auth:api'])->group(function () {
-    //
+    Route::post('/set_structure', 'API\OrgStructureController@store')->middleware('xml');
 });

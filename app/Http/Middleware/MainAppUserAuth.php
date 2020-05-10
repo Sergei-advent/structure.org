@@ -28,7 +28,8 @@ class MainAppUserAuth
      */
     public function handle($request, Closure $next)
     {
-        $userToken = $request->get('token');
+        $userToken = $request->header('token');
+
         $user = User::where('token', $userToken)->whereDate('token_active_before', '<', now())->first();
 
         if (!$user) {
@@ -59,8 +60,8 @@ class MainAppUserAuth
 
     protected function validator(array $data) {
         return Validator::make($data, [
-            'token' => 'string',
-            'email' => 'string'
+            'token' => 'required|string',
+            'email' => 'required|string'
         ]);
     }
 }
