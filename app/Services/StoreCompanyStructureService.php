@@ -3,13 +3,16 @@
 namespace App\Services;
 
 use App\Models\Department;
+use App\Models\Employee;
+use App\Models\Position;
 
 class StoreCompanyStructureService
 {
     /**
      * Store structure in data base
      *
-     * @param array $structure
+     * @param $structure
+     * @throws \Exception
      */
     public function storeStructure($structure) {
         $structure = $this->convertToCorrectStructure($structure);
@@ -20,54 +23,177 @@ class StoreCompanyStructureService
     /**
      * Store info about departments in data base
      *
-     * @param array $structure
+     * @param  array  $structure
+     * @throws \Exception
      */
     private function storeDepartments(Array $structure) {
-        foreach ($structure as $department) {
-            [$departmentSyncField, $departmentSyncValue] = $this->getSyncField($department);
+        foreach ($structure as &$department) {
 
-            $parentSyncField = 'parent_department_' . $departmentSyncField;
-            $parentDepartmentId = Department::where($departmentSyncField, $department[$parentSyncField])->first();
-
-
-            /**
-             * TODO parent save
-             */
-            /*while(!$parentDepartmentId) {
-                $parentDepartmentId = Department::where($departmentSyncField, $department[$parentSyncField])->first();
-
-
-                $parentDepartmentId = array_search($department[$parentSyncField], array_column($structure, $departmentSyncField));
-
-                $currentDepartment = $structure[$parentDepartmentId];
-
-
+            if (isset($department['saved']) && $department['saved']) {
+                continue;
             }
 
-            if (!$parentDepartmentId) {
-                $parentDepartmentId = array_search($department[$parentSyncField], array_column($structure, $departmentSyncField));
-                Department::create([
-                    'parent_department_id' => $parentDepartmentId,
-                    'name' => $department['name'],
-                    'code_name' => isset($department['code_name']) ? $department['code_name'] : null,
-                    'description' => isset($department['description']) ? $department['description'] : null,
-                    'other_information' => isset($department['other_information']) ? json_encode($department['other_information']) : null,
-                ]);
-            }*/
+            [$departmentSyncField, $departmentSyncValue] = $this->getSyncField($department);
+            $parentSyncField = 'parent_department_' . $departmentSyncField;
+            $parentDepartmentId = null;
 
-            Department::updateOrCreate(
+            if (isset($department[$parentSyncField])) {
+                $parentDepartment = Department::where($departmentSyncField, $department[$parentSyncField])->first();
+
+                if (!$parentDepartment) {
+                    $parentDepartmentKey = array_search($department[$parentSyncField], array_column($structure, $departmentSyncField));
+
+                    $parentDepartmentId = $this->storeParentDepartment(
+                        $structure[$parentDepartmentKey],
+                        $parentSyncField,
+                        $structure
+                    );
+                } else {
+                    $parentDepartmentId = $parentDepartment->id;
+                }
+            }
+
+            $this->storeDepartment($departmentSyncField, $departmentSyncValue, $parentDepartmentId,$department);
+        }
+    }
+
+    /**
+     * Store info about parent department in data base
+     *
+     * @param $department
+     * @param $parentSyncField
+     * @param $structure
+     * @return mixed
+     * @throws \Exception
+     */
+    private function storeParentDepartment(&$department, $parentSyncField, $structure) {
+        $departmentParentId = null;
+
+        [$departmentSyncField, $departmentSyncValue] = $this->getSyncField($department);
+
+        if (isset($department[$parentSyncField])) {
+            $parentDepartmentKey = array_search($department[$parentSyncField], array_column($structure, $departmentSyncField));
+            $departmentParentId = $this->storeParentDepartment($structure[$parentDepartmentKey], $parentSyncField, $structure);
+        }
+
+        $savedDepartment = $this->storeDepartment($departmentSyncField, $departmentSyncValue, $departmentParentId,$department);
+
+        return $savedDepartment->id;
+    }
+
+    /**
+     * Store info about one department in data base
+     *
+     * @param $departmentSyncField
+     * @param $departmentSyncValue
+     * @param $departmentParentId
+     * @param $department
+     * @return mixed
+     * @throws \Exception
+     */
+    private function storeDepartment($departmentSyncField, $departmentSyncValue, $departmentParentId, &$department) {
+        $storedDepartment = Department::updateOrCreate(
+            [
+                $departmentSyncField => $departmentSyncValue
+            ],
+            [
+                'parent_department_id' => $departmentParentId,
+                'name' => $department['name'],
+                'code_name' => isset($department['code_name']) ? $department['code_name'] : null,
+                'description' => isset($department['description']) ? $department['description'] : null,
+                'other_information' => isset($department['other_information']) ? json_encode($department['other_information']) : null,
+            ]
+        );
+
+        if (isset($department['employees'])) {
+            $this->storeEmployees($department['employees'], $storedDepartment->id);
+        }
+
+        $department['saved'] = true;
+
+        return $storedDepartment;
+    }
+
+    /**
+     * Store employees in data base
+     *
+     * @param $employees
+     * @param $departmentId
+     * @throws \Exception
+     */
+    private function storeEmployees($employees, $departmentId) {
+        foreach ($employees as $key=>$employee) {
+            $positionId = null;
+
+            if (isset($employee['position'])) {
+                $positionId = $this->storePosition($employee['position']);
+            }
+
+            if (!isset($employee['name'])) {
+                throw new \Exception('Missing require field "name" in employee object: ' . json_encode($employee));
+            }
+
+            if (!isset($employee['id'])) {
+                throw new \Exception('Missing require sync field "id" in employee object: ' . json_encode($employee));
+            }
+
+            Employee::updateOrCreate(
                 [
-                    $departmentSyncField => $departmentSyncValue
+                    'id' => $employee['id']
                 ],
                 [
-                    'parent_department_id' => $parentDepartmentId,
-                    'name' => $department['name'],
-                    'code_name' => isset($department['code_name']) ? $department['code_name'] : null,
-                    'description' => isset($department['description']) ? $department['description'] : null,
-                    'other_information' => isset($department['other_information']) ? json_encode($department['other_information']) : null,
+                    'department_id' => $departmentId,
+                    'name' => $employee['name'],
+                    'other_information' => isset($employee['other_information']) ? $employee['other_information'] : null,
+                    'position_id' => $positionId
                 ]
             );
         }
+    }
+
+    /**
+     * Store position in data base
+     *
+     * @param $position
+     * @return |null
+     * @throws \Exception
+     */
+    private function storePosition($position) {
+        if ($position) {
+            if (is_array($position)) {
+                [$positionSyncField, $positionSyncValue] = $this->getSyncField($position);
+
+                if (!isset($position['name'])) {
+                    throw new \Exception('Missing require field "name" in position object: ' . json_encode($position));
+                }
+
+                $position = Position::updateOrCreate(
+                    [
+                        $positionSyncField => $positionSyncValue
+                    ],
+                    [
+                        'name' => $position['name'],
+                        'code_name' => isset($position['code_name']) ? $position['code_name'] : null,
+                        'description' => isset($position['description']) ? $position['description'] : null,
+                        'other_information' => isset($position['other_information']) ?
+                            json_encode($position['other_information']) :
+                            null,
+                    ]
+                );
+            } else {
+                $position = Position::updateOrCreate(
+                    [
+                        'name' => $position
+                    ]
+                );
+            }
+
+            $id = $position->id;
+        } else {
+            $id = null;
+        }
+
+        return $id;
     }
 
     /**
@@ -75,6 +201,7 @@ class StoreCompanyStructureService
      *
      * @param $structure
      * @return array
+     * @throws \Exception
      */
     private function convertToCorrectStructure($structure) {
         $correctStructure = [];
@@ -90,6 +217,15 @@ class StoreCompanyStructureService
         return $correctStructure;
     }
 
+    /**
+     * Recursive function which is converting tree structure in correct structure
+     *
+     * @param $department
+     * @param  string  $parentSyncField
+     * @param  null  $parentSyncValue
+     * @return array
+     * @throws \Exception
+     */
     private function createDepartmentForSave($department, $parentSyncField = 'id', $parentSyncValue = null) {
         [$departmentSyncField, $departmentSyncValue] = $this->getSyncField($department);
 
@@ -97,45 +233,64 @@ class StoreCompanyStructureService
 
         if (isset($department['children']) && count($department['children']) !== 0) {
 
-            $correctDepartment[] = $this->setParrentDepartment(
+            $correctDepartment[] = $this->setParentDepartment(
                 $department,
                 $parentSyncField,
                 $parentSyncValue
             );
 
             foreach ($department['children'] as $child) {
-                $correctDepartment = array_merge($this->setParrentDepartment(
+                $correctDepartment = array_merge($this->setParentDepartment(
                     $this->createDepartmentForSave($child, $departmentSyncField, $departmentSyncValue),
                     $parentSyncField,
                     $parentSyncValue
                 ), $correctDepartment);
             }
         } else {
-            $correctDepartment[] = $this->setParrentDepartment($department, $parentSyncField, $parentSyncValue);
+            $correctDepartment[] = $this->setParentDepartment($department, $parentSyncField, $parentSyncValue);
         }
 
         return $correctDepartment;
     }
 
-    private function setParrentDepartment($department, $parentSyncField = 'id', $parentSyncValue = null) {
+    /**
+     * Add parent field in one department object and remove array with children department
+     *
+     * @param $department
+     * @param  string  $parentSyncField
+     * @param  null  $parentSyncValue
+     * @return mixed
+     */
+    private function setParentDepartment($department, $parentSyncField = 'id', $parentSyncValue = null) {
         unset($department['children']);
 
-        if ($parentSyncValue && isset($department[$parentSyncField]) && ($parentSyncValue !== $department[$parentSyncField])) {
+        if ($parentSyncValue && (isset($department[$parentSyncField]) && ($parentSyncValue !== $department[$parentSyncField]))) {
             $department['parent_department_' . $parentSyncField] = $parentSyncValue;
         }
 
         return $department;
     }
 
-    private function getSyncField($department) {
-        $departmentSyncField = 'id';
-        $departmentSyncValue = isset($department['id']) ? $department['id'] : null;
+    /**
+     * Get sync field and value
+     *
+     * @param $item
+     * @return array
+     * @throws \Exception
+     */
+    private function getSyncField($item) {
+        $syncField = 'id';
+        $syncValue = isset($item['id']) ? $item['id'] : null;
 
-        if (isset($department['code_name'])) {
-            $departmentSyncField = 'code_name';
-            $departmentSyncValue = $department['code_name'];
+        if (isset($item['code_name'])) {
+            $syncField = 'code_name';
+            $syncValue = $item['code_name'];
         }
 
-        return [$departmentSyncField, $departmentSyncValue];
+        if (!$syncValue) {
+            throw new \Exception('Missing require sync field "id" or "code_name" in position object or department object: ' . json_encode($item));
+        }
+
+        return [$syncField, $syncValue];
     }
 }

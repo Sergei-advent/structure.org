@@ -53,7 +53,7 @@ class OrgStructureController extends Controller
             return response()->json(['message' => $e->getMessage()], JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        return response()->json([], JsonResponse::HTTP_OK);
+        return response()->json(null, JsonResponse::HTTP_OK);
     }
 
     public function update(Request $request)
