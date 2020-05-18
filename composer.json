@@ -18,7 +18,8 @@
         "laravel/framework": "^7.0",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^2.0",
-        "tucker-eric/laravel-xml-middleware": "^1.2"
+        "tucker-eric/laravel-xml-middleware": "^1.2",
+        "soapbox/laravel-formatter": "^2.0"
     },
     "require-dev": {
         "facade/ignition": "^2.0",

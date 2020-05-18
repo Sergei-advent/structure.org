@@ -2,12 +2,52 @@
 
 namespace App\Services;
 
+use App\Http\Resources\DepartmentResource;
 use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Position;
+use SoapBox\Formatter\Formatter;
 
-class StoreCompanyStructureService
+class CompanyStructureService
 {
+    /**
+     * Array with inserted ids
+     */
+
+    /**
+     * @var array
+     */
+    public $departmentsIds = [];
+
+    /**
+     * @var array
+     */
+    public $employeesIds = [];
+
+    /**
+     * @var array
+     */
+    public $positionsIds = [];
+
+    /**
+     * Get organization structure
+     *
+     * @param $type
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
+    public function getStructure($type) {
+        $structure = Department::doesntHave('parentDepartment')->get();
+        $correctStructure = DepartmentResource::collection($structure);
+
+        if ($type === 'xml') {
+            $departments['departments'] = $correctStructure;
+            $formatter = Formatter::make(json_encode($departments), Formatter::JSON);
+            $correctStructure = $formatter->toXml();
+        }
+
+        return $correctStructure;
+    }
+
     /**
      * Store structure in data base
      *
@@ -17,7 +57,29 @@ class StoreCompanyStructureService
     public function storeStructure($structure) {
         $structure = $this->convertToCorrectStructure($structure);
 
+        $this->clearIdsArrays();
+
         $this->storeDepartments($structure);
+
+        $this->removeDiff();
+    }
+
+    /**
+     *  Clear array before save
+     */
+    private function clearIdsArrays() {
+        $this->positionsIds = [];
+        $this->employeesIds = [];
+        $this->departmentsIds = [];
+    }
+
+    /**
+     * Remove unused entity
+     */
+    private function removeDiff() {
+        Position::whereNotIn('id', $this->positionsIds)->delete();
+        Department::whereNotIn('id', $this->departmentsIds)->delete();
+        Employee::whereNotIn('id', $this->employeesIds)->delete();
     }
 
     /**
@@ -105,6 +167,10 @@ class StoreCompanyStructureService
             ]
         );
 
+        $this->departmentsIds[] = $storedDepartment->id;
+
+        $storedDepartment->employees()->detach();
+
         if (isset($department['employees'])) {
             $this->storeEmployees($department['employees'], $storedDepartment->id);
         }
@@ -137,17 +203,20 @@ class StoreCompanyStructureService
                 throw new \Exception('Missing require sync field "id" in employee object: ' . json_encode($employee));
             }
 
-            Employee::updateOrCreate(
+            $newEmployee = Employee::updateOrCreate(
                 [
                     'id' => $employee['id']
                 ],
                 [
-                    'department_id' => $departmentId,
                     'name' => $employee['name'],
                     'other_information' => isset($employee['other_information']) ? $employee['other_information'] : null,
                     'position_id' => $positionId
                 ]
             );
+
+            $this->employeesIds[] = $newEmployee->id;
+
+            $newEmployee->departments()->attach($departmentId);
         }
     }
 
@@ -189,6 +258,8 @@ class StoreCompanyStructureService
             }
 
             $id = $position->id;
+
+            $this->positionsIds[] = $id;
         } else {
             $id = null;
         }

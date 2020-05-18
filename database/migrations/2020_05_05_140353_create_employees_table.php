@@ -15,13 +15,10 @@ class CreateEmployeesTable extends Migration
     {
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('department_id')->nullable();
             $table->string('name');
             $table->json('other_information')->nullable();
 
             $table->timestamps();
-
-            $table->foreign('department_id')->references('id')->on('departments')->onDelete('set null');
         });
     }
 

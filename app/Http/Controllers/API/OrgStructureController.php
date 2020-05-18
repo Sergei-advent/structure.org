@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Services\StoreCompanyStructureService;
+use App\Services\CompanyStructureService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -11,21 +11,30 @@ use Illuminate\Support\Facades\Validator;
 class OrgStructureController extends Controller
 {
     /**
-     * @var StoreCompanyStructureService
+     * @var CompanyStructureService
      */
-    protected $storeCompanyStructureService;
+    protected $companyStructureService;
 
     /**
      * OrgStructureController constructor.
-     * @param  StoreCompanyStructureService  $storeCompanyStructureService
+     * @param  CompanyStructureService  $companyStructureService
      */
-    public function __construct(StoreCompanyStructureService $storeCompanyStructureService) {
-        $this->storeCompanyStructureService = $storeCompanyStructureService;
+    public function __construct(CompanyStructureService $companyStructureService) {
+        $this->companyStructureService = $companyStructureService;
     }
 
-    public function index()
-    {
-        //
+    public function index(Request $request) {
+        $type = $request->get('type', 'json');
+        $structure = $this->companyStructureService->getStructure($type);
+        $response = response()->json($structure, JsonResponse::HTTP_OK);
+
+        if ($type === 'xml') {
+            $response = response()->streamDownload(function () use ($structure) {
+                echo $structure;
+            },'structure.xml', ['Content-Type' => 'text/xml']);
+        }
+
+        return $response;
     }
 
     /**
@@ -34,8 +43,7 @@ class OrgStructureController extends Controller
      * @param  Request  $request
      * @return JsonResponse
      */
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $structure = $request->all();
 
         $validator = $this->validator($structure);
@@ -48,22 +56,12 @@ class OrgStructureController extends Controller
         }
 
         try {
-            $this->storeCompanyStructureService->storeStructure($structure['structure']);
+            $this->companyStructureService->storeStructure($structure['structure']);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        return response()->json(null, JsonResponse::HTTP_OK);
-    }
-
-    public function update(Request $request)
-    {
-        //
-    }
-
-    public function destroy($id)
-    {
-        //
+        return response()->json(null, JsonResponse::HTTP_NO_CONTENT);
     }
 
     protected function validator(array $data) {

@@ -13,16 +13,25 @@ class Employee extends Model
      * @var array
      */
     protected $fillable = [
-        'department_id', 'name', 'other_information', 'position_id'
+        'name', 'other_information', 'position_id'
     ];
 
     /**
      * Relation to Department model.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function department() {
-        return $this->hasOne(Department::class);
+    public function departments() {
+        return $this->belongsToMany(Department::class, 'employees_departments');
+    }
+
+    /**
+     * Relation to FunctionalGroup model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function functionalGroups() {
+        return $this->belongsToMany(Department::class, 'employees_functional_groups');
     }
 
     /**
@@ -31,6 +40,6 @@ class Employee extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function position() {
-        return $this->hasOne(Position::class);
+        return $this->hasOne(Position::class, 'id', 'position_id');
     }
 }

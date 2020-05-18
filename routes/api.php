@@ -17,5 +17,10 @@ use Illuminate\Support\Facades\Route;
 Route::post('/auth_test', 'API\TestController@authTest');
 
 Route::middleware(['main.auth:api'])->group(function () {
-    Route::post('/set_structure', 'API\OrgStructureController@store')->middleware('xml');
+    Route::post('/structure', 'API\OrgStructureController@store')->middleware('xml');
+    Route::get('/structure', 'API\OrgStructureController@index');
+
+    Route::resource('/department', 'API\DepartmentController')->except(['create', 'edit']);
+    Route::resource('/employee', 'API\EmployeeController')->except(['create', 'edit']);
+    Route::resource('/position', 'API\PositionController')->except(['create', 'edit']);
 });

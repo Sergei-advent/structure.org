@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Department extends Model
+class FunctionalGroup extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -12,7 +12,7 @@ class Department extends Model
      * @var array
      */
     protected $fillable = [
-        'parent_department_id', 'name', 'code_name', 'description', 'other_information'
+        'parent_group_id', 'name', 'code_name', 'description', 'other_information'
     ];
 
     /**
@@ -20,8 +20,8 @@ class Department extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function parentDepartment() {
-        return $this->hasOne(Department::class, 'id', 'parent_department_id');
+    public function parentFunctionalGroup() {
+        return $this->hasOne(Department::class, 'id', 'parent_functional_group_id');
     }
 
     /**
@@ -29,8 +29,8 @@ class Department extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function childDepartments() {
-        return $this->hasMany(Department::class, 'parent_department_id', 'id');
+    public function childFunctionalGroups() {
+        return $this->hasMany(Department::class, 'parent_functional_group_id', 'id');
     }
 
     /**
@@ -39,6 +39,6 @@ class Department extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function employees() {
-        return $this->belongsToMany(Employee::class, 'employees_departments');
+        return $this->belongsToMany(Employee::class, 'employees_functional_groups');
     }
 }
