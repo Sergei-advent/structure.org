@@ -23,4 +23,5 @@ Route::middleware(['main.auth:api'])->group(function () {
     Route::resource('/department', 'API\DepartmentController')->except(['create', 'edit']);
     Route::resource('/employee', 'API\EmployeeController')->except(['create', 'edit']);
     Route::resource('/position', 'API\PositionController')->except(['create', 'edit']);
+    Route::resource('/group', 'API\FunctionalGroupController')->except(['create', 'edit']);
 });

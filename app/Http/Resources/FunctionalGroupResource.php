@@ -28,7 +28,7 @@ class FunctionalGroupResource extends JsonResource
             $functionalGroup['employees'] = EmployeeResource::collection($this->employees);
         }
 
-        if (count($this->childDepartments)) {
+        if (count($this->childFunctionalGroups)) {
             $functionalGroup['children'] = FunctionalGroupResource::collection($this->childFunctionaGroup);
         }
 

@@ -21,7 +21,7 @@ class FunctionalGroup extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function parentFunctionalGroup() {
-        return $this->hasOne(Department::class, 'id', 'parent_functional_group_id');
+        return $this->hasOne(FunctionalGroup::class, 'id', 'parent_functional_group_id');
     }
 
     /**
@@ -30,7 +30,7 @@ class FunctionalGroup extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function childFunctionalGroups() {
-        return $this->hasMany(Department::class, 'parent_functional_group_id', 'id');
+        return $this->hasMany(FunctionalGroup::class, 'parent_functional_group_id', 'id');
     }
 
     /**
