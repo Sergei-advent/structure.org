@@ -105,7 +105,12 @@ trait CrudTrait {
             $syncValue = $request->get($syncField);
 
             if ($syncValue) {
-                $resource->$syncField()->$syncMethod($syncValue);
+                $attachValue = [];
+                foreach ($syncValue as $value) {
+                    $attachValue[$value['id']] = ['position_id' => isset($value['position_id']) ? $value['position_id'] : null];
+                }
+
+                $resource->$syncField()->$syncMethod($attachValue);
             }
         }
 

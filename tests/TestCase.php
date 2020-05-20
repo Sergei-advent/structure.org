@@ -172,7 +172,7 @@ abstract class TestCase extends BaseTestCase
             'other_information' => [
                 'year' => 1995
             ],
-            'employees' => [$this->findCreatedEmployee()->id],
+            'employees' => [['id' => $this->findCreatedEmployee()->id, 'position_id' => $this->findCreatedPosition()->id]]
         ];
     }
 
@@ -191,8 +191,7 @@ abstract class TestCase extends BaseTestCase
             'name' => 'empTest1',
             'other_information' => [
                 'test' => true
-            ],
-            'position_id' => $this->findCreatedPosition()->id
+            ]
         ];
     }
 
@@ -200,8 +199,7 @@ abstract class TestCase extends BaseTestCase
         return [
             'other_information' => [
                 'year' => 1995
-            ],
-            'position_id' => $this->findCreatedPosition()->id
+            ]
         ];
     }
 
@@ -234,7 +232,7 @@ abstract class TestCase extends BaseTestCase
             'other_information' => [
                 'year' => 1995
             ],
-            'employees' => [$this->findCreatedEmployee()->id],
+            'employees' => [['id' => $this->findCreatedEmployee()->id, 'position_id' => $this->findCreatedPosition()->id]],
         ];
     }
 
@@ -245,7 +243,7 @@ abstract class TestCase extends BaseTestCase
             'other_information' => [
                 'year' => 1995
             ],
-            'employees' => [$this->findCreatedEmployee()->id],
+            'employees' => [['id' => $this->findCreatedEmployee()->id, 'position_id' => $this->findCreatedPosition()->id]],
         ];
     }
 
