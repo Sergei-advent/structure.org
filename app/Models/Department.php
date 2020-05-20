@@ -41,4 +41,11 @@ class Department extends Model
     public function employees() {
         return $this->belongsToMany(Employee::class, 'employees_departments');
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function positions() {
+        return $this->belongsToMany(Position::class, 'employees_departments', 'department_id', 'position_id');
+    }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Models\EmployeeDepartment;
+use App\Models\Position;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class DepartmentResource extends JsonResource
@@ -25,6 +27,14 @@ class DepartmentResource extends JsonResource
         }
 
         if (count($this->employees)) {
+            foreach ($this->employees as &$employee) {
+                $position = EmployeeDepartment::where(['department_id' => $this->id, 'employee_id' => $employee['id']])->first();
+
+                if ($position) {
+                    $employee->position = $position->position;
+                }
+            }
+
             $department['employees'] = EmployeeResource::collection($this->employees);
         }
 

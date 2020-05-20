@@ -22,12 +22,6 @@ class CreatePositionsTable extends Migration
 
             $table->timestamps();
         });
-
-        Schema::table('employees', function (Blueprint $table) {
-            $table->unsignedBigInteger('position_id')->nullable();
-
-            $table->foreign('position_id')->references('id')->on('positions')->onDelete('set null');
-        });
     }
 
     /**
@@ -37,11 +31,6 @@ class CreatePositionsTable extends Migration
      */
     public function down()
     {
-        Schema::table('employees', function (Blueprint $table) {
-            $table->dropForeign(['position_id']);
-            $table->dropColumn('position_id');
-        });
-
         Schema::dropIfExists('positions');
     }
 }

@@ -15,12 +15,4 @@ class Position extends Model
         'name', 'description', 'other_information', 'code_name'
     ];
 
-    /**
-     * Relation to Employee model.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function employees() {
-        return $this->belongsTo(Employee::class);
-    }
 }

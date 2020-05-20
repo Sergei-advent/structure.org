@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Http\Resources\DepartmentResource;
 use App\Models\Department;
 use App\Models\Employee;
+use App\Models\EmployeeDepartment;
 use App\Models\Position;
 use SoapBox\Formatter\Formatter;
 
@@ -209,14 +210,19 @@ class CompanyStructureService
                 ],
                 [
                     'name' => $employee['name'],
-                    'other_information' => isset($employee['other_information']) ? $employee['other_information'] : null,
-                    'position_id' => $positionId
+                    'other_information' => isset($employee['other_information']) ? $employee['other_information'] : null
                 ]
             );
 
+            $newEmployeeId = $newEmployee->id;
             $this->employeesIds[] = $newEmployee->id;
 
             $newEmployee->departments()->attach($departmentId);
+
+            $departmentEmployee = EmployeeDepartment::where(['department_id' => $departmentId, 'employee_id' => $newEmployeeId])->firstOrFail();
+
+            $departmentEmployee->position_id = $positionId;
+            $departmentEmployee->save();
         }
     }
 

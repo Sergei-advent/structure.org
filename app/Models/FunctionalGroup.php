@@ -41,4 +41,11 @@ class FunctionalGroup extends Model
     public function employees() {
         return $this->belongsToMany(Employee::class, 'employees_functional_groups');
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function positions() {
+        return $this->belongsToMany(Position::class, 'employees_functional_groups', 'functional_group_id', 'position_id');
+    }
 }

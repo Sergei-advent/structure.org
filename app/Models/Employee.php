@@ -7,13 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class Employee extends Model
 {
 
+    public $position = null;
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'name', 'other_information', 'position_id'
+        'name', 'other_information'
     ];
 
     /**
@@ -32,14 +33,5 @@ class Employee extends Model
      */
     public function functionalGroups() {
         return $this->belongsToMany(Department::class, 'employees_functional_groups');
-    }
-
-    /**
-     * Relation to Position model.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
-    public function position() {
-        return $this->hasOne(Position::class, 'id', 'position_id');
     }
 }

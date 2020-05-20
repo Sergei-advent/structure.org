@@ -30,9 +30,13 @@ class CreateFunctionalGroupsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('employee_id');
             $table->unsignedBigInteger('functional_group_id');
+            $table->unsignedBigInteger('position_id')->nullable();
+
+            $table->unique(['employee_id', 'functional_group_id']);
 
             $table->timestamps();
 
+            $table->foreign('position_id')->references('id')->on('positions')->onDelete('set null');
             $table->foreign('functional_group_id')->references('id')->on('functional_groups')->onDelete('cascade');
             $table->foreign('employee_id')->references('id')->on('employees')->onDelete('cascade');
         });
