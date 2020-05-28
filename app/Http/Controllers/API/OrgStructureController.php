@@ -46,6 +46,10 @@ class OrgStructureController extends Controller
     public function store(Request $request) {
         $structure = $request->all();
 
+        if ($request->has('file')) {
+            $structure = $request->get('file');
+        }
+
         $validator = $this->validator($structure);
 
         if ($validator->fails()) {
@@ -61,7 +65,9 @@ class OrgStructureController extends Controller
             return response()->json(['message' => $e->getMessage()], JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        return response()->json(null, JsonResponse::HTTP_NO_CONTENT);
+        $structure = $this->companyStructureService->getStructure('json');
+
+        return response()->json($structure, JsonResponse::HTTP_OK);
     }
 
     protected function validator(array $data) {
