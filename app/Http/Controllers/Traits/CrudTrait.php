@@ -31,11 +31,16 @@ trait CrudTrait {
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        $employees = $this->resource::collection($this->model::all());
+    public function index(Request $request) {
+        $collection = $this->model::all();
 
-        return response()->json($employees, JsonResponse::HTTP_OK);
+        if ($request->has('search')) {
+            $collection = $this->model::where('name', 'ilike', '%' . $request->get('search') . '%')->get();
+        }
+
+        $collection = $this->resource::collection($collection);
+
+        return response()->json($collection, JsonResponse::HTTP_OK);
     }
 
     /**

@@ -19,7 +19,8 @@ class DepartmentResource extends JsonResource
         $department = [
             'id' => $this->id,
             'name' => $this->name,
-            'description' => $this->description
+            'description' => $this->description,
+            'parent_department_id' => $this->parent_department_id
         ];
 
         if ($this->other_information) {

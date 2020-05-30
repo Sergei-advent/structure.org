@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\EmployeeDepartment;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class EmployeeResource extends JsonResource
@@ -25,6 +26,17 @@ class EmployeeResource extends JsonResource
 
         if ($this->position) {
             $employee['position'] = PositionResource::make($this->position);
+        } else {
+            $positions = EmployeeDepartment::where(['employee_id' => $this->id])->get();
+
+            $employee['position'] = [];
+
+            foreach ($positions as $position) {
+                $employee['position'][] = [
+                    'position' => PositionResource::make($position->position),
+                    'department_id' => $position->department_id
+                ];
+            }
         }
 
         return $employee;
