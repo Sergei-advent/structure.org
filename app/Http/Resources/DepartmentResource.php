@@ -20,7 +20,8 @@ class DepartmentResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
-            'parent_department_id' => $this->parent_department_id
+            'parent_department_id' => $this->parent_department_id,
+            'code_name' => $this->code_name
         ];
 
         if ($this->other_information) {

@@ -17,8 +17,12 @@ use Illuminate\Support\Facades\Route;
 Route::post('/auth_test', 'API\TestController@authTest');
 
 Route::middleware(['main.auth:api'])->group(function () {
+    Route::get('/permissions', 'API\PermissionController@getPermissionFromPage');
+
     Route::post('/structure', 'API\OrgStructureController@store')->middleware('xml');
     Route::get('/structure', 'API\OrgStructureController@index');
+
+    Route::get('/group/tree', 'API\FunctionalGroupController@getTree');
 
     Route::resource('/department', 'API\DepartmentController')->except(['create', 'edit']);
     Route::resource('/employee', 'API\EmployeeController')->except(['create', 'edit']);

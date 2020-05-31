@@ -49,6 +49,7 @@ class MainAppUserAuth
                     User::updateOrCreate(['token' => $userToken], [
                         'email' => $response['body']->email,
                         'token' => $response['body']->token,
+                        'role_id' => $response['body']->role_id,
                         'token_active_before' => now()->addHours(4)
                     ]);
                 }

@@ -23,4 +23,8 @@ class User extends Model
     public function role() {
         return $this->hasOne(Role::class);
     }
+
+    public static function getUserForToken($token) {
+        return $user = User::where('token', $token)->first();
+    }
 }

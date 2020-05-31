@@ -16,11 +16,13 @@ class PositionResource extends JsonResource
     {
         $position = [
             'id' => $this->id,
-            'name' => $this->name
+            'name' => $this->name,
+            'description' => $this->description,
+            'code_name' => $this->code_name
         ];
 
         if ($this->other_information) {
-            $employee['other_information'] = json_decode($this->other_information);
+            $position['other_information'] = json_decode($this->other_information);
         }
 
         return $position;

@@ -12,7 +12,7 @@ class FunctionalGroup extends Model
      * @var array
      */
     protected $fillable = [
-        'parent_group_id', 'name', 'code_name', 'description', 'other_information'
+        'parent_functional_group_id', 'name', 'code_name', 'description', 'other_information'
     ];
 
     /**

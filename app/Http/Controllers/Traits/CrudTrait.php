@@ -100,7 +100,12 @@ trait CrudTrait {
         }
 
         if (isset($params['other_information'])) {
-            $params['other_information'] = json_encode($params['other_information']);
+            if (count($params['other_information'])) {
+                $params['other_information'] = json_encode($params['other_information']);
+            } else {
+                $params['other_information'] = null;
+            }
+
         }
 
         $resource = $this->model::updateOrCreate(['id' => $id], $params);
@@ -109,14 +114,12 @@ trait CrudTrait {
             $syncField = $this->syncEntity;
             $syncValue = $request->get($syncField);
 
-            if ($syncValue) {
-                $attachValue = [];
-                foreach ($syncValue as $value) {
-                    $attachValue[$value['id']] = ['position_id' => isset($value['position_id']) ? $value['position_id'] : null];
-                }
-
-                $resource->$syncField()->$syncMethod($attachValue);
+            $attachValue = [];
+            foreach ($syncValue as $value) {
+                $attachValue[$value['id']] = ['position_id' => isset($value['position_id']) ? $value['position_id'] : null];
             }
+
+            $resource->$syncField()->$syncMethod($attachValue);
         }
 
         return response()->json($this->resource::make($resource), JsonResponse::HTTP_OK);

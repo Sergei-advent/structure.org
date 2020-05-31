@@ -9,6 +9,6 @@ use Illuminate\Http\Request;
 class TestController extends Controller
 {
     public function authTest(Request $request) {
-        return response()->json(['email' => 'test@test.test', 'token' => 'test'], JsonResponse::HTTP_OK);
+        return response()->json(['email' => 'test@test.test', 'token' => 'test', 'role_id' => 2], JsonResponse::HTTP_OK);
     }
 }
