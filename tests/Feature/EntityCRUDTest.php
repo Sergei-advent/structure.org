@@ -112,12 +112,12 @@ class EntityCRUDTest extends TestCase
         $this->makeRequest('DELETE', true, false, 'group', 204);
     }
 
-    public function testDeleteEmployee() {
-        $this->makeRequest('DELETE', true, false, 'employee', 204);
-    }
-
     public function testDeleteDepartment() {
         $this->makeRequest('DELETE', true, false, 'department', 204);
+    }
+
+    public function testDeleteEmployee() {
+        $this->makeRequest('DELETE', true, false, 'employee', 204);
     }
 
     public function testDeletePosition() {

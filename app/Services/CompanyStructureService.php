@@ -56,7 +56,10 @@ class CompanyStructureService
      * @throws \Exception
      */
     public function storeStructure($structure) {
-        $structure = $this->convertArray($structure['item'], $structure);
+
+        if (isset($structure['item'])) {
+            $structure = $this->convertArray($structure['item'], $structure);
+        }
 
         $structure = $this->convertToCorrectStructure($structure);
 
@@ -191,7 +194,9 @@ class CompanyStructureService
      * @throws \Exception
      */
     private function storeEmployees($employees, $departmentId) {
-        $employees = $this->convertArray($employees['employee'], $employees);
+        if (isset($employees['employee'])) {
+            $employees = $this->convertArray($employees['employee'], $employees);
+        }
 
         foreach ($employees as $key=>$employee) {
             $positionId = null;
@@ -313,7 +318,9 @@ class CompanyStructureService
         $correctDepartment = [];
 
         if (isset($department['children']) && count($department['children']) !== 0) {
-            $department['children'] = $this->convertArray($department['children']['child'], $department['children']);
+            if (isset($department['children']['child'])) {
+                $department['children'] = $this->convertArray($department['children']['child'], $department['children']);
+            }
 
             $correctDepartment[] = $this->setParentDepartment(
                 $department,

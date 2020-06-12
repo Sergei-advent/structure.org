@@ -114,12 +114,15 @@ trait CrudTrait {
             $syncField = $this->syncEntity;
             $syncValue = $request->get($syncField);
 
-            $attachValue = [];
-            foreach ($syncValue as $value) {
-                $attachValue[$value['id']] = ['position_id' => isset($value['position_id']) ? $value['position_id'] : null];
+            if ($syncValue) {
+                $attachValue = [];
+                foreach ($syncValue as $value) {
+                    $attachValue[$value['id']] = ['position_id' => isset($value['position_id']) ? $value['position_id'] : null];
+                }
+
+                $resource->$syncField()->$syncMethod($attachValue);
             }
 
-            $resource->$syncField()->$syncMethod($attachValue);
         }
 
         return response()->json($this->resource::make($resource), JsonResponse::HTTP_OK);

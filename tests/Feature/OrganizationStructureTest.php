@@ -17,7 +17,7 @@ class OrganizationStructureTest extends TestCase
 
         $this->removeStructure();
 
-        $response->assertStatus(204);
+        $response->assertStatus(200);
     }
 
     public function testSetStructureIncorrect() {
