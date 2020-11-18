@@ -3,6 +3,7 @@ API for organization's intranet, which works with organizational and functional 
 # Installation
 1. git clone https://github.com/Sergei-advent/structure.org
 2. composer install
+3. php artisan key:generate
 3. php artisan migrate --seed
 # Settings
 1. standart Laravel settings in .env
