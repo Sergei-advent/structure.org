@@ -1,6 +1,11 @@
 <?php
 
-use Illuminate\Http\Request;
+
+use App\Http\Controllers\API\{
+    TestController,
+    PermissionController,
+    FunctionalGroupController as FunctionalGroupControllerForGetTreeView
+};
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,18 +19,21 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/auth_test', 'API\TestController@authTest');
+Route::post('/auth_test', [TestController::class, 'authTest']);
 
 Route::middleware(['main.auth:api'])->group(function () {
-    Route::get('/permissions', 'API\PermissionController@getPermissionFromPage');
+    Route::get('/group/tree', [FunctionalGroupControllerForGetTreeView::class, 'getTree']);
 
-    Route::post('/structure', 'API\OrgStructureController@store')->middleware('xml');
-    Route::get('/structure', 'API\OrgStructureController@index');
+    Route::get('/permissions', [PermissionController::class, 'getPermissionFromPage']);
 
-    Route::get('/group/tree', 'API\FunctionalGroupController@getTree');
+    Route::apiResources([
+        'department' => DepartmentController::class,
+        'employee' => EmployeeController::class,
+        'position' => PositionController::class,
+        'group' => FunctionalGroupController::class,
+    ]);
 
-    Route::resource('/department', 'API\DepartmentController')->except(['create', 'edit']);
-    Route::resource('/employee', 'API\EmployeeController')->except(['create', 'edit']);
-    Route::resource('/position', 'API\PositionController')->except(['create', 'edit']);
-    Route::resource('/group', 'API\FunctionalGroupController')->except(['create', 'edit']);
+    Route::resource('structure', OrgStructureController::class)
+        ->only(['store', 'index'])
+        ->middleware('xml');
 });
